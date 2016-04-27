@@ -30,7 +30,14 @@ assg4_1 <- function() {
 assg4_2 <- function() {
     # analyze data: ToothGrowth data
     # 1. basic summary of the data
-    toothGrowth <- data(ToothGrowth)
+    data(ToothGrowth)
+    tg_vc <- subset(ToothGrowth, supp=="VC")
+    tg_oc <- subset(ToothGrowth, supp=="OJ")
+    print(summary(tg_vc))
+    print(summary(tg_oc))
+    par(mfrow=c(1,2))
+    plot(tg_vc$len)
+    plot(tg_oc$len)
     
     # 2. use conf int and hypo tests to compare tooth growth by supp and dose
     
