@@ -55,5 +55,46 @@ swirl_power <- function() {
 }
 
 swirl_multi_test <- function() {
+    # positive discovery rate: Declared significant & H0 is true / total declared significant
+    # false positive rate: declared significant and H0 is true/total H0 is true
+    # Family wise error rate : Pr(V>=1), Pr(declard significant & H0 is true >=1)
+    
+    # pValues has 51 items out of 1000 has value < 0.05. however, there is no relationship. therefore,
+    # all 51 items are false alarms
+    sum(p.adjust(pValues,method="bonferroni") < 0.05)
+    # answer is 0.
+    sum(p.adjust(pValues,method="BH") < 0.05)
+    # another array, trueStatus: first 500 random, second 500 related
+    table(pvalues2<0.05, trueStatus)
+    # without correction, type1 error: 24
+    table(p.adjust(pValues2, method="bonferroni")<0.05, trueStatus)
+    # now no type1 error, but more type2 error
+    table(p.adjust(pValues, method="BH")<0.05, trueStatus)
+}
+
+testStat <- function(w,g) {
+  mean(w[g=="B"]) - mean(w[g=="C"])  
+}
+
+swirl_resample <- function() {
+    # bootstrap principle used observed data to construct an estimated population distribution using
+    # random sampling with replacement.
+    # first simulating B complete data sets from observed data by sampling with replacement.
+    # make sure B is large to create data sets the same size as the original
+    # the only assumption behind it is that the observed sample is representative of the underlying
+    # population
+    sam <- sample(fh, nh*B, replace=TRUE)
+    resam <- matrix(sample,B,nh)
+    meds <- apply(resam, 1, median)
+    # find the quantile of sons data
+    quantile(resampledMedians, c(0.025,0.975))
+    
+    # now permutation test
+    # permutation testing is based on the idea of exchanability of group labels. 
+    obs <- testStat(BCcounts, group)
+    perms <- sapply(1:10000, function(i) testStat(BCcounts, sample(group)))
+    mean(perms - obs)
+    # it is centered in zero. but obs is 13.5. therefore, label is significant
+    
     
 }
