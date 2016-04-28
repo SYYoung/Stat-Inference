@@ -32,14 +32,20 @@ assg4_2 <- function() {
     # 1. basic summary of the data
     data(ToothGrowth)
     tg_vc <- subset(ToothGrowth, supp=="VC")
-    tg_oc <- subset(ToothGrowth, supp=="OJ")
+    tg_oj <- subset(ToothGrowth, supp=="OJ")
     print(summary(tg_vc))
-    print(summary(tg_oc))
+    print(summary(tg_oj))
     par(mfrow=c(1,2))
-    plot(tg_vc$len)
-    plot(tg_oc$len)
+    plot(tg_vc$dose, tg_vc$len, main="VC")
+    plot(tg_oj$dose, tg_oj$len, main="OJ")
     
     # 2. use conf int and hypo tests to compare tooth growth by supp and dose
+    # H0: the differnce between VC and OJ is zero. HA: the difference is non-zero
+    result <- t.test(tg_vc$len, tg_oj$len, paired=FALSE)
+    if (result$p.value < 0.05) 
+        print(paste("Since p-value is: ",result$p.value, "H0 is rejected"))
+    else
+        print(paste("Since p-value is: ",result$p.value, "H0 is not rejected"))
     
     # 3. state conclusion and assumptions
 }
