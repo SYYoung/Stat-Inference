@@ -36,16 +36,34 @@ assg4_2 <- function() {
     print(summary(tg_vc))
     print(summary(tg_oj))
     par(mfrow=c(1,2))
-    plot(tg_vc$dose, tg_vc$len, main="VC")
-    plot(tg_oj$dose, tg_oj$len, main="OJ")
+    yrange = range(c(range(to$len),range(tv$len)))
+    plot(tg_vc$dose, tg_vc$len, main="VC", ylim=yrange)
+    plot(tg_oj$dose, tg_oj$len, main="OJ", ylim=yrange)
     
     # 2. use conf int and hypo tests to compare tooth growth by supp and dose
     # H0: the differnce between VC and OJ is zero. HA: the difference is non-zero
+    print("We compare the Supplement as a whole to see 2 different sets of
+          supplement with different dosage.")
     result <- t.test(tg_vc$len, tg_oj$len, paired=FALSE)
     if (result$p.value < 0.05) 
         print(paste("Since p-value is: ",result$p.value, "H0 is rejected"))
     else
         print(paste("Since p-value is: ",result$p.value, "H0 is not rejected"))
     
-    # 3. state conclusion and assumptions
+    # 3. in previous analysis, we compare VC and OJ as a whole. Since the dosage 
+    # are different in 3 levels, now we compare VC and OJ in each different
+    # dosage, i.e. 0.5, 1.0, 2
+    # first compare dosage == 0.5
+    
+    for (i in c(0.5,1,2)) {
+        result <- t.test(subset(tv,dose==i)$len, subset(to,dose==i)$len, 
+                          paired=FALSE) 
+        if (result$p.value < 0.05)
+            print(paste("For dosage ", i, ", since p-value is: ", 
+                        result$p.value, "H0 is rejected"))
+        else
+            print(paste("For dosage ",i, ", since p-value is: ", 
+                        result$p.value, "H0 is not rejected"))
+    }
+    
 }
