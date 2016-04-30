@@ -11,12 +11,16 @@ of the distibution. Then we will show the sample variance and compare it to the 
 In part 2, we will analyze the ToothGrowth data in R database package. We would like to compare tooth growth by supp and dose. We would like to investigate the length depends on the supp and dose.
 
 ## Part I: exponential distribution
-```{r, echo=FALSE}
+Here,the mean and standard deviation of the theoretical exponential distribution
+is 1/lambda, which lambda = 5. We will investigate how close the mean and sd
+of simulation is relative to the theoretical one.
+```{r, echo=FALSE, fig.width=7, fig.height=6}
     # distribution of mean of 40 exponentials
     # 1. compare sample mean and theoretical mean
     # first observe the 40 exponentials and 1000*40 
-    hist(rexp(40, 0.2),main="Histogram of 40 exponential data")
-    hist(rexp(40*1000, 0.2))
+    par(mfrow=c(1,2))
+    hist(rexp(40, 0.2),main="Hist of 40 exp data")
+    hist(rexp(40*1000, 0.2), main="Hist of 40000 exp data")
     
     # 2. compare sample variance and theoretical variance
     # theoretical mean = 1/0.2 = 5
@@ -40,13 +44,52 @@ In part 2, we will analyze the ToothGrowth data in R database package. We would 
                 quantile(samp_sd, c(0.25,0.975))))
 
 ```
-```{r}
-summary(cars)
+## Part 2: In here, we will investigate the relationship between the tooth length
+and the supplementary/dosage. Thru p-test and confidence interval, we will conclude
+whether this relationship exists or not.
+```{r, echo=FALSE}
+# analyze data: ToothGrowth data
+# 1. basic summary of the data
+data(ToothGrowth)
+tg_vc <- subset(ToothGrowth, supp=="VC")
+tg_oj <- subset(ToothGrowth, supp=="OJ")
+print(summary(tg_vc))
+print(summary(tg_oj))
+par(mfrow=c(1,2))
+yrange = range(c(range(tg_oj$len),range(tg_vc$len)))
+plot(tg_vc$dose, tg_vc$len, main="VC", ylim=yrange)
+plot(tg_oj$dose, tg_oj$len, main="OJ", ylim=yrange)
+
+# 2. use conf int and hypo tests to compare tooth growth by supp and dose
+# H0: the differnce between VC and OJ is zero. HA: the difference is non-zero
+print("We compare the Supplement as a whole to see 2 different sets of supplement with different dosage.")
+
+result <- t.test(tg_vc$len, tg_oj$len, paired=FALSE)
+if (result$p.value < 0.05) 
+    print(paste("Since p-value is: ",result$p.value, "H0 is rejected"))
+if (result$p.value >= 0.05)
+    print(paste("Since p-value is: ",signif(result$p.value,4), "H0 is not rejected"))
+    # 3. in previous analysis, we compare VC and OJ as a whole. Since the dosage 
+    # are different in 3 levels, now we compare VC and OJ in each different
+    # dosage, i.e. 0.5, 1.0, 2
+    # first compare dosage == 0.5
+    
+    for (i in c(0.5,1,2)) {
+        result <- t.test(subset(tg_vc,dose==i)$len, subset(tg_oj,dose==i)$len, 
+                          paired=FALSE) 
+        print(paste("For dosage = ", i, ", "))
+        print(paste("p_value is: ", signif(result$p.value)))
+        print(paste("95% confidence level is: ", result$conf.int))
+        if (result$p.value < 0.05)
+            print(paste("Since p-value is: ", result$p.value, "H0 is rejected"))
+        if (result$p.value >= 0.05)
+            print(paste("Since p-value is: ", result$p.value, "H0 is not rejected"))
+    }
+    
 ```
 
-You can also embed plots, for example:
 
-```{r fig.width=7, fig.height=6}
-plot(cars)
+```{r fig.width=7, fig.height=6, echo=FALSE}
+
 ```
 
